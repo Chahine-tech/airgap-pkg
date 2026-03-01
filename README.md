@@ -1,5 +1,8 @@
 # airgap-pkg
 
+[![CI](https://github.com/Chahine-tech/airgap-pkg/actions/workflows/ci.yml/badge.svg)](https://github.com/Chahine-tech/airgap-pkg/actions/workflows/ci.yml)
+[![Release](https://github.com/Chahine-tech/airgap-pkg/actions/workflows/release.yml/badge.svg)](https://github.com/Chahine-tech/airgap-pkg/releases)
+
 A Go CLI to automate Docker image and Helm chart packaging for air-gapped deployments.
 
 ## The Problem

@@ -1,0 +1,73 @@
+# GoReleaser v2 config
+# docs: https://goreleaser.com
+version: 2
+
+project_name: airgap-pkg
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: airgap-pkg
+    main: .
+    binary: airgap-pkg
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Tag}}
+
+archives:
+  - id: airgap-pkg
+    name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "Merge pull request"
+      - "Merge branch"
+
+release:
+  github:
+    owner: Chahine-tech
+    name: airgap-pkg
+  draft: false
+  prerelease: auto
+  name_template: "airgap-pkg {{.Tag}}"
+  footer: |
+    ## Install
+
+    **Go install**
+    ```sh
+    go install github.com/Chahine-tech/airgap-pkg@{{.Tag}}
+    ```
+
+    **Download binary** — pick your platform from the assets above:
+    ```sh
+    # Linux amd64
+    curl -L https://github.com/Chahine-tech/airgap-pkg/releases/download/{{.Tag}}/airgap-pkg-linux-amd64.tar.gz | tar xz
+    sudo mv airgap-pkg /usr/local/bin/
+
+    # macOS arm64 (Apple Silicon)
+    curl -L https://github.com/Chahine-tech/airgap-pkg/releases/download/{{.Tag}}/airgap-pkg-darwin-arm64.tar.gz | tar xz
+    sudo mv airgap-pkg /usr/local/bin/
+    ```
