@@ -28,4 +28,8 @@ func init() {
 	rootCmd.AddCommand(pushCmd)
 	rootCmd.AddCommand(verifyCmd)
 	rootCmd.AddCommand(statusCmd)
+	rootCmd.AddCommand(sbomCmd)
+	rootCmd.AddCommand(diffCmd)
+	rootCmd.AddCommand(bundleCmd)
+	rootCmd.AddCommand(unbundleCmd)
 }

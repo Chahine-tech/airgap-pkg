@@ -15,6 +15,8 @@ type Config struct {
 
 type Transit struct {
 	Host   string `yaml:"host"`
+	Port   string `yaml:"port"`    // optional, defaults to "22"
+	User   string `yaml:"user"`    // optional, defaults to $USER
 	SSHKey string `yaml:"ssh_key"`
 }
 

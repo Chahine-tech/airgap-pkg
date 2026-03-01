@@ -1,6 +1,8 @@
 registry: 192.168.2.2:5000
 transit:
   host: node-1
+  port: "22"          # optional, default 22
+  user: ubuntu        # optional, default $USER
   ssh_key: ~/.ssh/id_rsa
 
 packages:

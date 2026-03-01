@@ -4,18 +4,33 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 )
 
 type Printer struct {
-	w io.Writer
+	mu sync.Mutex
+	w  io.Writer
 }
 
 func New() *Printer {
 	return &Printer{w: os.Stdout}
 }
 
-func (p *Printer) OK(msg string)      { fmt.Fprintf(p.w, "[OK  ] %s\n", msg) }
-func (p *Printer) Fail(msg string)    { fmt.Fprintf(p.w, "[FAIL] %s\n", msg) }
-func (p *Printer) Info(msg string)    { fmt.Fprintf(p.w, "[    ] %s\n", msg) }
-func (p *Printer) Skip(msg string)    { fmt.Fprintf(p.w, "[SKIP] %s\n", msg) }
-func (p *Printer) Section(msg string) { fmt.Fprintf(p.w, "\n=== %s ===\n", msg) }
+func NewTo(w io.Writer) *Printer {
+	return &Printer{w: w}
+}
+
+func (p *Printer) OK(msg string)   { p.print("[OK  ] %s\n", msg) }
+func (p *Printer) Fail(msg string) { p.print("[FAIL] %s\n", msg) }
+func (p *Printer) Info(msg string) { p.print("[    ] %s\n", msg) }
+func (p *Printer) Skip(msg string) { p.print("[SKIP] %s\n", msg) }
+func (p *Printer) Warn(msg string) { p.print("[WARN] %s\n", msg) }
+
+func (p *Printer) Section(msg string)              { p.print("\n=== %s ===\n", msg) }
+func (p *Printer) Custom(prefix, msg string)       { p.print("[%s] %s\n", prefix, msg) }
+
+func (p *Printer) print(format string, args ...any) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	fmt.Fprintf(p.w, format, args...)
+}
