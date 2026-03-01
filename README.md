@@ -21,7 +21,7 @@ docker pull → docker save → USB/SCP transfer → docker load → docker tag 
 ┌─────────────────────────────────────────────────────────────────┐
 │  CONNECTED ZONE  (internet access)                              │
 │                                                                 │
-│  packages.yaml ──► airgap-pkg pull ──► artifacts/              │
+│  packages.yaml ──► airgap-pkg pull ──► artifacts/               │
 │                         │                 ├── images/*.tar      │
 │                         │                 └── charts/*.tgz      │
 │                         ▼                                       │
@@ -284,16 +284,5 @@ airgap-pkg unbundle airgap-bundle.tar.gz --registry 192.168.2.2:5000
 ## Makefile
 
 ```bash
-make build               # compile → bin/airgap-pkg
-make test                # go test ./...
-make run-pull            # pull with examples/lumen-packages.yaml
-make run-verify          # verify artifacts/
-make run-push-ssh        # push via SSH tunnel through node-1
-make run-sbom            # generate SBOM (JSON) to stdout
-make run-sbom-cyclonedx  # generate SBOM in CycloneDX format → sbom.cdx.json
-make run-diff            # diff examples/lumen-packages.yaml against itself (no changes)
-make run-update          # check for newer versions of all images and charts
-make run-bundle          # pack artifacts/ → airgap-bundle.tar.gz
-make run-unbundle        # unbundle airgap-bundle.tar.gz → localhost:5001
-make clean               # remove bin/ and artifacts/
+make help
 ```
