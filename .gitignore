@@ -1,0 +1,4 @@
+bin/
+artifacts/
+*.tar
+*.tgz

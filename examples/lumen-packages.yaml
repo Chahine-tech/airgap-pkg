@@ -1,0 +1,27 @@
+registry: 192.168.2.2:5000
+transit:
+  host: node-1
+  ssh_key: ~/.ssh/id_rsa
+
+packages:
+  - name: chaos-mesh
+    images:
+      - source: ghcr.io/chaos-mesh/chaos-mesh:v2.7.2
+        dest: chaos-mesh/chaos-mesh:v2.7.2
+      - source: ghcr.io/chaos-mesh/chaos-daemon:v2.7.2
+        dest: chaos-mesh/chaos-daemon:v2.7.2
+      - source: ghcr.io/chaos-mesh/chaos-dashboard:v2.7.2
+        dest: chaos-mesh/chaos-dashboard:v2.7.2
+    charts:
+      - repo: https://charts.chaos-mesh.org
+        name: chaos-mesh
+        version: "2.7.2"
+
+  - name: falco
+    images:
+      - source: falcosecurity/falco-no-driver:0.43.0
+        dest: falcosecurity/falco-no-driver:0.43.0
+    charts:
+      - repo: https://falcosecurity.github.io/charts
+        name: falco
+        version: "4.21.2"
