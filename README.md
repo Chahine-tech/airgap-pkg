@@ -138,7 +138,7 @@ transit:
 
 Flag precedence: CLI flag > `packages.yaml` > default.
 
-**Host key verification:** `~/.ssh/known_hosts` is used automatically. If the file does not exist, a `[WARN]` is printed and host key checking is disabled.
+**Host key verification:** `~/.ssh/known_hosts` is used automatically. If the file does not exist, a `⚠` warning is printed and host key checking is disabled.
 
 ### `sbom` — generate a Software Bill of Materials
 
@@ -181,13 +181,15 @@ airgap-pkg diff packages-v1.yaml packages-v2.yaml --all
 Example output:
 
 ```
-=== Images ===
-[ADD] chaos-mesh/chaos-daemon:v2.7.3  ← ghcr.io/chaos-mesh/chaos-daemon:v2.7.3
-[DEL] chaos-mesh/chaos-daemon:v2.7.2  (was ghcr.io/chaos-mesh/chaos-daemon:v2.7.2)
-[UPD] chaos-mesh/chaos-mesh:latest  ghcr.io/chaos-mesh/chaos-mesh:v2.7.2 → ghcr.io/chaos-mesh/chaos-mesh:v2.7.3
+═══ Images ═══
 
-=== Charts ===
-[UPD] chaos-mesh  2.7.2 → 2.7.3
+  +  chaos-mesh/chaos-daemon:v2.7.3  ← ghcr.io/chaos-mesh/chaos-daemon:v2.7.3
+  -  chaos-mesh/chaos-daemon:v2.7.2  (was ghcr.io/chaos-mesh/chaos-daemon:v2.7.2)
+  ↑  chaos-mesh/chaos-mesh:latest  ghcr.io/chaos-mesh/chaos-mesh:v2.7.2 → ghcr.io/chaos-mesh/chaos-mesh:v2.7.3
+
+═══ Charts ═══
+
+  ↑  chaos-mesh  2.7.2 → 2.7.3
 ```
 
 ### `update` — check for newer versions
@@ -200,9 +202,9 @@ Queries upstream registries and Helm repositories to detect newer versions of ea
 Exits with code 1 when at least one update is available — CI-friendly.
 
 ```
-[OK  ] [chaos-mesh] image chaos-mesh/chaos-mesh:v2.7.2 (v2.7.2 up-to-date)
-[UPD] [chaos-mesh] chart chaos-mesh  2.7.2 → 2.7.3
-[SKIP] [falco] image falcosecurity/falco-no-driver:0.43.0 (no semver tags found)
+  ✓  [chaos-mesh] image chaos-mesh/chaos-mesh:v2.7.2 (v2.7.2 up-to-date)
+  ↑  [chaos-mesh] chart chaos-mesh  2.7.2 → 2.7.3
+  ↷  [falco] image falcosecurity/falco-no-driver:0.43.0 (no semver tags found)
 ```
 
 ### `bundle` — pack artifacts into a single archive
