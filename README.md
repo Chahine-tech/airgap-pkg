@@ -15,6 +15,43 @@ docker pull → docker save → USB/SCP transfer → docker load → docker tag 
 
 `airgap-pkg` automates all of this from a single declarative `packages.yaml` file.
 
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  CONNECTED ZONE  (internet access)                              │
+│                                                                 │
+│  packages.yaml ──► airgap-pkg pull ──► artifacts/              │
+│                         │                 ├── images/*.tar      │
+│                         │                 └── charts/*.tgz      │
+│                         ▼                                       │
+│                    airgap-pkg verify  (SHA256 check)            │
+│                         │                                       │
+│                    airgap-pkg bundle ──► airgap-bundle.tar.gz   │
+└─────────────────────────────────────────────────────────────────┘
+           │
+           │  USB / SCP  (one file)
+           ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  AIR-GAPPED ZONE  (no internet)                                 │
+│                                                                 │
+│  airgap-bundle.tar.gz                                           │
+│       │                                                         │
+│       ▼                                                         │
+│  airgap-pkg unbundle ──► registry:5000  (HTTP insecure OK)      │
+│                                                                 │
+│  airgap-pkg status   ──► verify all images are present          │
+└─────────────────────────────────────────────────────────────────┘
+
+Alternative: SSH tunnel (no file transfer needed)
+
+  airgap-pkg push --via-ssh node-1
+       │
+       └──► SSH tunnel ──► node-1 ──► registry:5000
+```
+
+No Docker daemon required — all image operations use [go-containerregistry](https://github.com/google/go-containerregistry) directly.
+
 ## Install
 
 ```bash
@@ -153,6 +190,21 @@ Example output:
 [UPD] chaos-mesh  2.7.2 → 2.7.3
 ```
 
+### `update` — check for newer versions
+
+```bash
+airgap-pkg update --config packages.yaml
+```
+
+Queries upstream registries and Helm repositories to detect newer versions of each declared image and chart.
+Exits with code 1 when at least one update is available — CI-friendly.
+
+```
+[OK  ] [chaos-mesh] image chaos-mesh/chaos-mesh:v2.7.2 (v2.7.2 up-to-date)
+[UPD] [chaos-mesh] chart chaos-mesh  2.7.2 → 2.7.3
+[SKIP] [falco] image falcosecurity/falco-no-driver:0.43.0 (no semver tags found)
+```
+
 ### `bundle` — pack artifacts into a single archive
 
 ```bash
@@ -240,6 +292,7 @@ make run-push-ssh        # push via SSH tunnel through node-1
 make run-sbom            # generate SBOM (JSON) to stdout
 make run-sbom-cyclonedx  # generate SBOM in CycloneDX format → sbom.cdx.json
 make run-diff            # diff examples/lumen-packages.yaml against itself (no changes)
+make run-update          # check for newer versions of all images and charts
 make run-bundle          # pack artifacts/ → airgap-bundle.tar.gz
 make run-unbundle        # unbundle airgap-bundle.tar.gz → localhost:5001
 make clean               # remove bin/ and artifacts/

@@ -32,4 +32,5 @@ func init() {
 	rootCmd.AddCommand(diffCmd)
 	rootCmd.AddCommand(bundleCmd)
 	rootCmd.AddCommand(unbundleCmd)
+	rootCmd.AddCommand(updateCmd)
 }

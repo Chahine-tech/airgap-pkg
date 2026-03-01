@@ -2,7 +2,7 @@ BINARY  := airgap-pkg
 VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 LDFLAGS := -ldflags "-X main.version=$(VERSION)"
 
-.PHONY: build install test tidy clean run-pull run-verify run-push run-push-ssh run-status run-sbom run-sbom-cyclonedx run-diff run-bundle run-unbundle
+.PHONY: build install test tidy clean run-pull run-verify run-push run-push-ssh run-status run-sbom run-sbom-cyclonedx run-diff run-bundle run-unbundle run-update
 
 build:
 	go build -trimpath $(LDFLAGS) -o bin/$(BINARY) .
@@ -48,3 +48,6 @@ run-bundle:
 
 run-unbundle:
 	go run . unbundle airgap-bundle.tar.gz --registry localhost:5001
+
+run-update:
+	go run . update --config examples/lumen-packages.yaml
