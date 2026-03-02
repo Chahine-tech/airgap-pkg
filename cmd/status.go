@@ -2,10 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/Chahine-tech/airgap-pkg/internal/config"
+	"github.com/Chahine-tech/airgap-pkg/internal/image"
 	"github.com/Chahine-tech/airgap-pkg/internal/registry"
 	"github.com/Chahine-tech/airgap-pkg/pkg/output"
+	"github.com/google/go-containerregistry/pkg/v1/tarball"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +40,13 @@ var statusCmd = &cobra.Command{
 					p.Fail(fmt.Sprintf("MISSING  %s/%s", cfg.Registry, img.Dest))
 					missing++
 				} else {
-					p.OK(fmt.Sprintf("PRESENT  %s/%s  (%s)", cfg.Registry, img.Dest, status.Digest))
+					tarPath := filepath.Join(outputDir, "images", image.RefToFilename(img.Source))
+					localDigest := localOCIDigest(tarPath)
+					if localDigest != "" && localDigest != status.Digest {
+						p.Warn(fmt.Sprintf("STALE    %s/%s  (registry: %s  local: %s)", cfg.Registry, img.Dest, status.Digest, localDigest))
+					} else {
+						p.OK(fmt.Sprintf("PRESENT  %s/%s  (%s)", cfg.Registry, img.Dest, status.Digest))
+					}
 				}
 			}
 		}
@@ -47,4 +56,17 @@ var statusCmd = &cobra.Command{
 		}
 		return nil
 	},
+}
+
+// localOCIDigest returns the OCI digest of a local tarball, or "" if unavailable.
+func localOCIDigest(tarPath string) string {
+	img, err := tarball.ImageFromPath(tarPath, nil)
+	if err != nil {
+		return ""
+	}
+	d, err := img.Digest()
+	if err != nil {
+		return ""
+	}
+	return d.String()
 }
