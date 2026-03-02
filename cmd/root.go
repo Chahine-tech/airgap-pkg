@@ -33,4 +33,5 @@ func init() {
 	rootCmd.AddCommand(bundleCmd)
 	rootCmd.AddCommand(unbundleCmd)
 	rootCmd.AddCommand(updateCmd)
+	rootCmd.AddCommand(syncCmd)
 }
