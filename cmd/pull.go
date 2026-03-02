@@ -7,6 +7,7 @@ import (
 
 	"github.com/Chahine-tech/airgap-pkg/internal/chart"
 	"github.com/Chahine-tech/airgap-pkg/internal/config"
+	"github.com/Chahine-tech/airgap-pkg/internal/hooks"
 	"github.com/Chahine-tech/airgap-pkg/internal/image"
 	"github.com/Chahine-tech/airgap-pkg/pkg/output"
 	"github.com/spf13/cobra"
@@ -63,6 +64,11 @@ var pullCmd = &cobra.Command{
 			sem <- struct{}{}
 			g.Go(func() error {
 				defer func() { <-sem }()
+				if err := hooks.Run(cfg.Hooks.PrePull, map[string]string{
+					"Source": w.img.Source,
+				}); err != nil {
+					p.Warn(fmt.Sprintf("[%s] pre_pull hook failed: %v", w.pkg.Name, err))
+				}
 				p.Info(fmt.Sprintf("[%s] pulling image %s", w.pkg.Name, w.img.Source))
 				path, err := image.Pull(w.img.Source, imagesDir)
 				if err != nil {
@@ -71,6 +77,12 @@ var pullCmd = &cobra.Command{
 					return nil // don't abort siblings on one failure
 				}
 				p.OK(fmt.Sprintf("[%s] image saved → %s", w.pkg.Name, path))
+				if err := hooks.Run(cfg.Hooks.PostPull, map[string]string{
+					"Source": w.img.Source,
+					"Path":   path,
+				}); err != nil {
+					p.Warn(fmt.Sprintf("[%s] post_pull hook failed: %v", w.pkg.Name, err))
+				}
 				return nil
 			})
 		}

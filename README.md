@@ -66,6 +66,12 @@ make build && ./bin/airgap-pkg
 # packages.yaml
 registry: 192.168.2.2:5000
 
+hooks:
+  pre_pull:  "echo 'pulling {{ .Source }}'"
+  post_pull: "trivy image --input {{ .Path }}"
+  pre_push:  "cosign verify {{ .Source }}"
+  post_push: "echo '{{ .Dest }} pushed to {{ .Registry }}' >> audit.log"
+
 packages:
   - name: chaos-mesh
     images:
@@ -78,6 +84,17 @@ packages:
         name: chaos-mesh
         version: "2.7.2"
 ```
+
+All hooks are optional. A failing hook prints a `⚠` warning but does not stop the operation.
+
+Available template variables:
+
+| Hook | Variables |
+|------|-----------|
+| `pre_pull` | `.Source` |
+| `post_pull` | `.Source`, `.Path` |
+| `pre_push` | `.Source`, `.Path`, `.Dest`, `.Registry` |
+| `post_push` | `.Source`, `.Path`, `.Dest`, `.Registry` |
 
 ## Commands
 

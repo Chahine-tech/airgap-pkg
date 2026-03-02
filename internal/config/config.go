@@ -10,7 +10,15 @@ import (
 type Config struct {
 	Registry string    `yaml:"registry"`
 	Transit  Transit   `yaml:"transit"`
+	Hooks    Hooks     `yaml:"hooks"`
 	Packages []Package `yaml:"packages"`
+}
+
+type Hooks struct {
+	PrePull  string `yaml:"pre_pull"`
+	PostPull string `yaml:"post_pull"`
+	PrePush  string `yaml:"pre_push"`
+	PostPush string `yaml:"post_push"`
 }
 
 type Transit struct {

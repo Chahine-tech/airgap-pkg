@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 
 	"github.com/Chahine-tech/airgap-pkg/internal/config"
+	"github.com/Chahine-tech/airgap-pkg/internal/hooks"
 	"github.com/Chahine-tech/airgap-pkg/internal/image"
 	"github.com/Chahine-tech/airgap-pkg/internal/transport"
 	"github.com/Chahine-tech/airgap-pkg/pkg/output"
@@ -128,6 +129,14 @@ var pushCmd = &cobra.Command{
 					return nil
 				}
 
+				if err := hooks.Run(cfg.Hooks.PrePush, map[string]string{
+					"Source":   w.img.Source,
+					"Path":     tarPath,
+					"Dest":     w.img.Dest,
+					"Registry": registry,
+				}); err != nil {
+					p.Warn(fmt.Sprintf("[%s] pre_push hook failed: %v", w.pkg.Name, err))
+				}
 				p.Info(fmt.Sprintf("[%s] pushing %s → %s/%s", w.pkg.Name, filename, registry, w.img.Dest))
 				if err := image.Push(tarPath, registry, w.img.Dest); err != nil {
 					p.Fail(fmt.Sprintf("[%s] %s: %v", w.pkg.Name, w.img.Dest, err))
@@ -135,6 +144,14 @@ var pushCmd = &cobra.Command{
 					return nil
 				}
 				p.OK(fmt.Sprintf("[%s] pushed → %s/%s", w.pkg.Name, registry, w.img.Dest))
+				if err := hooks.Run(cfg.Hooks.PostPush, map[string]string{
+					"Source":   w.img.Source,
+					"Path":     tarPath,
+					"Dest":     w.img.Dest,
+					"Registry": registry,
+				}); err != nil {
+					p.Warn(fmt.Sprintf("[%s] post_push hook failed: %v", w.pkg.Name, err))
+				}
 				return nil
 			})
 		}
