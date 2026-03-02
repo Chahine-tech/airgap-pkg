@@ -8,6 +8,7 @@ import (
 
 	"github.com/Chahine-tech/airgap-pkg/internal/image"
 	"github.com/Chahine-tech/airgap-pkg/pkg/output"
+	"github.com/google/go-containerregistry/pkg/v1/tarball"
 	"github.com/spf13/cobra"
 )
 
@@ -49,7 +50,15 @@ var verifyCmd = &cobra.Command{
 					failed++
 					continue
 				}
-				p.OK(fmt.Sprintf("sha256:%s  %s", digest, n))
+				if subDir == "images" {
+					if oci := ociDigestFromTar(fullPath); oci != "" {
+						p.OK(fmt.Sprintf("sha256:%s  %s  (oci: %s)", digest, n, oci))
+					} else {
+						p.OK(fmt.Sprintf("sha256:%s  %s", digest, n))
+					}
+				} else {
+					p.OK(fmt.Sprintf("sha256:%s  %s", digest, n))
+				}
 			}
 		}
 
@@ -58,4 +67,17 @@ var verifyCmd = &cobra.Command{
 		}
 		return nil
 	},
+}
+
+// ociDigestFromTar returns the OCI digest of a local image tarball, or "" if unavailable.
+func ociDigestFromTar(tarPath string) string {
+	img, err := tarball.ImageFromPath(tarPath, nil)
+	if err != nil {
+		return ""
+	}
+	d, err := img.Digest()
+	if err != nil {
+		return ""
+	}
+	return d.String()
 }
